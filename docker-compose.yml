@@ -1,0 +1,172 @@
+version: '3.8'
+
+services:
+  # Trading Bot
+  trading-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: monero-trading-bot
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=production
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - INFLUXDB_URL=http://influxdb:8086
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./models:/app/models
+      - ./data:/app/data
+    networks:
+      - trading-network
+    depends_on:
+      - postgres
+      - redis
+      - influxdb
+    command: ["python", "run_bot.py", "--mode", "paper", "--capital", "10000"]
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: monero_trading
+      POSTGRES_USER: trading_bot
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-trading_password_123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - trading-network
+    ports:
+      - "5432:5432"
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - trading-network
+    ports:
+      - "6379:6379"
+
+  # InfluxDB for Time Series Data
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: trading-influxdb
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD:-influx_password_123}
+      DOCKER_INFLUXDB_INIT_ORG: trading_bot
+      DOCKER_INFLUXDB_INIT_BUCKET: market_data
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - trading-network
+    ports:
+      - "8086:8086"
+
+  # Prometheus for Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: trading-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - trading-network
+    ports:
+      - "9090:9090"
+
+  # Grafana for Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: trading-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-grafana_admin_123}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - trading-network
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  # Pushgateway for Metrics Collection
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: trading-pushgateway
+    restart: unless-stopped
+    networks:
+      - trading-network
+    ports:
+      - "9091:9091"
+
+  # Node Exporter for System Metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: trading-node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - trading-network
+    ports:
+      - "9100:9100"
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: trading-nginx
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - trading-network
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - grafana
+      - prometheus
+
+volumes:
+  postgres_data:
+  redis_data:
+  influxdb_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  trading-network:
+    driver: bridge
