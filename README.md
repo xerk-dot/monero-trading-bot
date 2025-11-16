@@ -1,18 +1,20 @@
-# Monero Trading Bot with Darknet Market Sentiment Analysis
+# Monero Trading Bot with GitHub Activity & Darknet Market Analysis
 
-An algorithmic trading system for Monero (XMR) that combines traditional technical analysis with novel darknet marketplace sentiment monitoring. The core thesis: Monero adoption on darknet markets is a leading indicator of genuine privacy demand and price action.
+An algorithmic trading system for Monero (XMR) that combines traditional technical analysis with novel alternative data sources. Core thesis: Developer activity on Monero GitHub repositories and darknet marketplace adoption are leading indicators of ecosystem health and price action.
 
 ## Overview
 
 This is a multi-strategy ensemble trading bot designed to exploit several inefficiencies in the Monero market:
 
-1. **Darknet Market Sentiment** - Primary signal source. Monitors cryptocurrency adoption trends across darknet marketplaces via Tor. Rising XMR acceptance rates and transaction volume on DNMs indicates increasing privacy demand before it reflects in spot price.
+1. **GitHub Activity Monitoring** - Primary signal source. Tracks developer activity across all Monero GitHub repositories (commits, PRs, issues, contributors). Increased development activity precedes major releases, protocol upgrades, and feature launches - all price-positive catalysts. Data stored in BigQuery for analysis. Legal, reliable, and proven correlation with ecosystem growth.
 
 2. **BTC-XMR Correlation Lag** - Secondary signal. XMR typically lags BTC price movements by 6-24 hours due to lower liquidity and fragmented exchange availability. When BTC moves >3%, XMR follows predictably.
 
 3. **News Sentiment Analysis** - LLM-based classification of crypto news from Twitter, focusing on privacy/regulation narratives that affect XMR price.
 
-4. **Traditional Technical Analysis** - Trend following (EMA), mean reversion (RSI/BB), and XGBoost-based market regime detection.
+4. **Darknet Market Sentiment** - Experimental signal. Monitors cryptocurrency adoption trends across darknet marketplaces via Tor. Rising XMR acceptance rates indicates increasing privacy demand. Currently uses placeholder addresses - requires manual setup.
+
+5. **Traditional Technical Analysis** - Trend following (EMA), mean reversion (RSI/BB), and XGBoost-based market regime detection.
 
 ## Repository Structure
 
@@ -25,6 +27,11 @@ src/
 │   └── feature_engineering.py
 │
 ├── strategies/
+│   ├── experimental/github/
+│   │   ├── github_scraper.py      # Scrapes Monero GitHub repos via API
+│   │   ├── bigquery_writer.py     # Writes activity data to BigQuery
+│   │   └── strategy.py            # GitHub activity trading strategy (TODO)
+│   │
 │   ├── experimental/darknet/
 │   │   ├── strategy.py            # Darknet sentiment trading strategy
 │   │   ├── marketplace_scraper.py # Tor-based .onion scraper
@@ -115,12 +122,13 @@ Default configuration (adjustable in config):
 
 ```python
 STRATEGY_WEIGHTS = {
-    'darknet_adoption': 0.30,      # Primary alpha source
-    'btc_correlation': 0.25,       # Secondary alpha
+    'github_activity': 0.30,       # Primary alpha source (developer activity)
+    'btc_correlation': 0.25,       # Secondary alpha (price lag)
     'news_sentiment': 0.20,        # Narrative detection
     'xgboost_ml': 0.15,           # Regime filtering
-    'trend_following': 0.05,       # Traditional TA
-    'mean_reversion': 0.05         # Traditional TA
+    'darknet_adoption': 0.05,      # Experimental (requires manual setup)
+    'trend_following': 0.03,       # Traditional TA
+    'mean_reversion': 0.02         # Traditional TA
 }
 ```
 
@@ -136,14 +144,21 @@ Signals are aggregated via weighted sum. Trade execution requires aggregate sign
 - Exchange API keys (Binance OR Kraken)
 - Telegram bot token (alerts)
 
-### Optional (Darknet Monitoring)
-- Tor installed and running (`brew install tor` on macOS)
-- Working `.onion` addresses for active darknet markets
-- Basic understanding of Tor network operation
+### Recommended (GitHub Monitoring)
+- GitHub API token (free, 5000 requests/hour)
+- Google Cloud Platform account (free tier available)
+- BigQuery enabled (first 10GB storage + 1TB queries/month free)
+- See: `docs/GITHUB_MONITORING_GUIDE.md`
 
 ### Optional (News Monitoring)
 - Twitter API v2 access ($100/month for Basic tier)
 - OpenAI API key ($10-20/month) OR Anthropic API key
+
+### Optional (Darknet Monitoring)
+- Tor installed and running (`brew install tor` on macOS)
+- Working `.onion` addresses for active darknet markets
+- Basic understanding of Tor network operation
+- **Not recommended** - experimental only
 
 ### Optional (ML Models)
 - 16GB+ RAM for XGBoost training
@@ -298,8 +313,9 @@ ruff format src/
 - `docs/02-SETUP.md` - Detailed API configuration
 - `docs/03-ARCHITECTURE.md` - System architecture and data flows
 - `docs/04-BTC-CORRELATION-STRATEGY.md` - Deep-dive on BTC-XMR correlation
-- `docs/DARKNET_MONITORING_GUIDE.md` - Darknet strategy implementation
+- `docs/GITHUB_MONITORING_GUIDE.md` - **GitHub activity monitoring setup (recommended)**
 - `docs/NEWS_MONITORING_GUIDE.md` - News sentiment setup
+- `docs/DARKNET_MONITORING_GUIDE.md` - Darknet strategy implementation (experimental)
 - `docs/06-STATUS.md` - Current project status and roadmap
 
 ## Disclaimer

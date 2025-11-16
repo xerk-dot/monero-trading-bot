@@ -1,7 +1,8 @@
-from pydantic_settings import BaseSettings
-from pydantic import Field
-from typing import Optional, Dict, Any
 from enum import Enum
+from typing import Optional
+
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Environment(str, Enum):
@@ -47,7 +48,7 @@ class TradingConfig(BaseSettings):
     news_check_interval_minutes: int = Field(default=30)
     news_aggregation_window_hours: int = Field(default=2)
     news_strategy_weight: float = Field(default=0.10, ge=0.0, le=1.0)
-    
+
     # Darknet monitoring configuration (optional)
     darknet_monitoring_enabled: bool = Field(default=False)
     darknet_tor_proxy_host: str = Field(default="127.0.0.1")
@@ -57,6 +58,17 @@ class TradingConfig(BaseSettings):
     darknet_bullish_threshold: float = Field(default=60.0, ge=0.0, le=100.0)
     darknet_bearish_threshold: float = Field(default=35.0, ge=0.0, le=100.0)
     darknet_min_confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+
+    # GitHub monitoring configuration
+    github_token: Optional[str] = Field(default=None)
+    github_monitoring_enabled: bool = Field(default=True)
+    github_scrape_interval_hours: int = Field(default=6)
+    github_strategy_weight: float = Field(default=0.15, ge=0.0, le=1.0)
+
+    # GCP/BigQuery configuration
+    gcp_project_id: Optional[str] = Field(default=None)
+    gcp_credentials_path: Optional[str] = Field(default=None)
+    bigquery_dataset: str = Field(default="monero_github")
 
     max_position_size: float = Field(default=0.02, ge=0.001, le=0.1)
     max_portfolio_exposure: float = Field(default=0.3, ge=0.1, le=1.0)
@@ -79,18 +91,12 @@ class TradingConfig(BaseSettings):
         return f"redis://{self.redis_host}:{self.redis_port}"
 
     @property
-    def exchange_credentials(self) -> Dict[str, Dict[str, str]]:
+    def exchange_credentials(self) -> dict[str, dict[str, str]]:
         creds = {}
         if self.binance_api_key and self.binance_secret:
-            creds["binance"] = {
-                "apiKey": self.binance_api_key,
-                "secret": self.binance_secret
-            }
+            creds["binance"] = {"apiKey": self.binance_api_key, "secret": self.binance_secret}
         if self.kraken_api_key and self.kraken_secret:
-            creds["kraken"] = {
-                "apiKey": self.kraken_api_key,
-                "secret": self.kraken_secret
-            }
+            creds["kraken"] = {"apiKey": self.kraken_api_key, "secret": self.kraken_secret}
         return creds
 
     @property
@@ -108,7 +114,7 @@ class TradingConfig(BaseSettings):
         has_twitter = bool(self.twitter_bearer_token)
         has_llm = bool(self.llm_api_key)
         return has_twitter and has_llm and self.news_monitoring_enabled
-    
+
     @property
     def darknet_monitoring_available(self) -> bool:
         """Check if darknet monitoring can be enabled."""
