@@ -16,7 +16,7 @@ This is a multi-strategy ensemble trading bot designed for Monero (XMR) markets:
 
 2. **BTC-XMR Correlation** - Tests for correlation between Bitcoin and Monero price movements with dynamic lag detection. Hypothesis: XMR may lag BTC movements due to lower liquidity and fragmented exchange availability. Exploits correlation inefficiencies for entry signals.
 
-3. **Development Activity Analysis** - Monitors GitHub repositories (Monero, Zcash, other privacy coins) tracking PRs, commits, and contributor activity to assess feature readiness and crisis management patterns that may signal upcoming price catalysts. Uses sentiment analysis on development activity as a leading indicator. Yes, this is a very noisy signal, but becomes relevant in cases like Qubit's alleged 51% attack.
+3. **Development Activity Analysis** - Monitors GitHub repositories (Monero, Zcash, other privacy coins) tracking PRs, commits, and contributor activity to assess feature readiness and crisis management patterns that may signal upcoming price catalysts. Uses sentiment analysis on development activity as a lagging indicator. Privacycoins have unique events like Qubit's alleged 51% attack.
 
 ## Repository Structure
 
