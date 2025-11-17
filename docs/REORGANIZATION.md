@@ -10,7 +10,7 @@ The repository has been reorganized for better clarity and maintainability.
 
 **Before** (Disorganized):
 ```
-privacy_coin_swing_trading/
+xmr-quant/
 ├── main.py (at root)
 ├── src/signals/ (strategies mixed with signals)
 ├── src/news/ (optional feature buried)
@@ -21,7 +21,7 @@ privacy_coin_swing_trading/
 
 **After** (Organized):
 ```
-privacy_coin_swing_trading/
+xmr-quant/
 ├── README.md (single entry point)
 ├── docs/ (all documentation)
 │   ├── 01-GETTING-STARTED.md
@@ -67,7 +67,7 @@ privacy_coin_swing_trading/
 
 **Before**: 5+ docs at root (README, ARCHITECTURE, SETUP, STATUS, GETTING_STARTED, QUICK_REFERENCE)
 
-**After**: 
+**After**:
 - `README.md` - Single overview with links
 - `docs/` - Everything else, numbered for reading order
 
@@ -105,7 +105,7 @@ Numbered for reading order!
 
 **Before**: `setup_database.py` at root, `test_*.py` scattered
 
-**After**: 
+**After**:
 - `scripts/setup_database.py`
 - `scripts/test_connection.py` (TODO)
 - `tests/test_*.py`
@@ -311,4 +311,3 @@ src/core/              # No dependencies (just exchanges + pandas/numpy)
 ---
 
 **Questions?** Check `docs/02-SETUP.md` or open an issue.
-

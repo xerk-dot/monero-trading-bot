@@ -29,7 +29,7 @@ This guide will walk you through getting the bot running, from minimal setup to 
 1. **Clone and Navigate**
 ```bash
 git clone <your-repo-url>
-cd privacy_coin_swing_trading
+cd xmr-quant
 ```
 
 2. **Create Configuration**
@@ -116,7 +116,7 @@ BINANCE_SECRET=your_secret_here
    - Go to: https://www.kraken.com/u/security/api
    - Click "Generate New Key"
    - Description: "Trading Bot"
-   
+
 4. **Configure Permissions**:
    - ✅ Query Funds
    - ✅ Query Open Orders & Trades
@@ -251,7 +251,7 @@ NEWS_LLM_PROVIDER=openai
 OPENAI_API_KEY=sk-proj-...your_key_here
 ```
 
-**Expected Costs**: 
+**Expected Costs**:
 - ~$0.30 per 1000 news classifications
 - ~500-1000 items/day = $0.15-$0.30/day
 - **~$5-10/month**
@@ -275,7 +275,7 @@ NEWS_LLM_PROVIDER=anthropic
 ANTHROPIC_API_KEY=sk-ant-...your_key_here
 ```
 
-**Expected Costs**: 
+**Expected Costs**:
 - ~$0.50 per 1000 classifications (slightly more than OpenAI)
 - **~$10-15/month**
 
@@ -598,4 +598,3 @@ Once you have the bot running:
 ## Legal Disclaimer
 
 This is experimental software for educational purposes. Cryptocurrency trading involves substantial risk. Never trade with money you cannot afford to lose. The developers assume no liability for financial losses.
-

@@ -155,7 +155,7 @@ Signals are aggregated via weighted sum. Trade execution requires aggregate sign
 ```bash
 # 1. Clone repository
 git clone <repo_url>
-cd privacy_coin_swing_trading
+cd xmr-quant
 
 # 2. Install dependencies
 pip install -r requirements.txt
